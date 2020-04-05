@@ -1,5 +1,11 @@
 {
 	"name": "Tide | Buoys",
+	"short_name": "Tide | Buoys",
+	"lang": "en-US",
+	"start_url": "/surf/index.php",
+	"display": "standalone",
+	"theme_color": "#dddddd",
+	"background_color": "#dddddd",
 	"icons": [
 		{
 			"src": "android-chrome-192x192.png",
@@ -11,7 +17,5 @@
 			"sizes": "512x512",
 			"type": "image\/png"
 		}
-	],
-	"theme_color": "#dddddd",
-	"display": "standalone"
+	]
 }

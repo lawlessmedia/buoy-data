@@ -9,11 +9,10 @@
 		<link rel="manifest" href="manifest.json">
 		<link rel="mask-icon" href="safari-pinned-tab.svg" color="#244b83">
 		<meta name="theme-color" content="#dddddd">
-
-<!-- iPhone specific tags - ToDo find trigger to activate these -->
+		<meta name="msapplication-starturl" content="/surf/index.php">
 		<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-<!-- END iPhone sepcific tags -->
+
 
 		<title>.: Masonboro Tide / Buoy Data for <?php echo date('M d') ?> :.</title>
 		<link rel="stylesheet" type="text/css" href="css/buoydata.css">
@@ -367,6 +366,23 @@ echo "</dl>";
 ?>
 
   <script>
+  	// START PWA code
+  	
+  	// Register Service Worker
+	if ('serviceWorker' in navigator) {
+	  window.addEventListener('load', () => {
+	    navigator.serviceWorker.register('service-worker.js')
+	    .then(registration => {
+	      console.log('Service Worker is registered', registration);
+	    })
+	    .catch(err => {
+	      console.error('Registration failed:', err);
+	    });
+	  });
+	}
+	
+	// END PWA code
+	
 	// create todays date as a formatted var for use in API call date range
 	var todaysDate = new Date();
 	apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })
