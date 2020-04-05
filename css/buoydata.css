@@ -1,0 +1,91 @@
+body {
+	background-color: #f4f4f4;
+  	color: #444;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; /* Use native system fonts - https://css-tricks.com/snippets/css/system-font-stack/ */
+	font-size: 1.2rem;
+}
+body.dark-mode {
+	background-color: #333;
+	color: #f4f4f4;
+}
+body.dark-mode dt {
+	  color: #3CB371;
+}
+@media screen and (prefers-color-scheme: light) {
+  body {
+  	background-color: #f4f4f4;
+  	color: #444;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body {
+  	background-color: #333;
+  	color: #f4f4f4;
+  }
+  dt {
+	  color: #3CB371;
+  }
+}
+h2 {
+	font-weight: 300;
+	font-size: 1.6rem;
+	margin: 1.2rem 0 0.5rem 0;
+	text-align: center;
+}
+dl {  
+	margin: 0;
+	padding: 0.5rem; 
+} 
+dt { 
+	float: left;
+	clear: both;
+	width: 50vw;
+	text-align: right;
+	font-weight: bold;
+	color: green; 
+}
+dt.hightide {
+	color: #999;
+}
+dd { 
+	margin: 0 0 0 51.5vw;
+	padding: 0 0 0.5rem 0; 
+}
+dd .tideheight {
+	font-size: smaller;
+}
+#tidesLoading {
+	text-align: center;	
+}
+/* styles to shift tide info to the left */
+#tides dt {
+	width: 43.5vw;
+}
+#tides dd {
+	margin: 0 0 0 44.5vw;
+}
+/* iPhone specific styles */
+@media screen and (max-device-width: 560px){
+	body {
+	  -webkit-text-size-adjust: none;
+	  padding: 0.5rem;
+	  font-size: 1rem;
+	}
+	h2 {
+		text-align: left;
+		margin-left: 10vw;
+	}
+	dt { 
+		width: 36vw; 
+	}
+	dd { 
+		margin: 0 0 0 38.5vw;
+	}
+	/* styles to shift tide info to the left */
+	#tides dt {
+		width: 31vw;
+	}
+	#tides dd {
+		margin: 0 0 0 33.5vw;
+	}
+}
