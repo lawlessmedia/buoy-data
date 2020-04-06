@@ -1,7 +1,7 @@
 // Cache resources
-const cacheName = 'cache-v1';
+const cacheName = 'buoycache-v1';
 const precacheResources = [
-  '/',
+  '/surf/',
   'index.php',
   'css/buoydata.css'
 ];
@@ -9,7 +9,13 @@ const precacheResources = [
 // Register Service Worker listeners
 self.addEventListener('install', event => {
   console.log('Service worker installing...');
-  self.skipWaiting();
+  event.waitUntil(
+	  caches.open(cacheName)
+	  	.then(cache => {
+		  	return cache.addAll(precacheResources);
+	  	})
+  );
+  //self.skipWaiting(); // Comment out this line once testing is done
 });
 
 self.addEventListener('activate', event => {
@@ -17,5 +23,11 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  console.log('Fetch intercepted for:', event.request.url);
+	console.log('Fetch intercepted for:', event.request.url);
+	event.respondWith(
+  		caches.match(event.request)
+  			.then(cachedResponse => {
+  				return cachedResponse || fetch(event.request);
+  			})
+  	);
 });
