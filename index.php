@@ -386,100 +386,128 @@ echo "</dl>";
 	
 	// create todays date as a formatted var for use in API call date range
 	var todaysDate = new Date();
-	apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' })
+	apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
 	//console.log(apiDate); // current date in mm/dd/yyyy format for API call params
 
 	var tideurl = 'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
 	
 	//var tideurl = null; // for testing error handling
 	
-	// fectch API call to grab tide data
-	fetch(tideurl).then(function(response) {
-	  return response.json();
-	}).then(function(data) {
-	  //console.log(data); // log the json response data
-	  
-	  // remove loading placeholder once .then promise executes
-	  var loading = document.getElementById("tidesLoading");
-	  loading.remove();
-	  
-	  // loop through the json data and set the variables
-	  data.predictions.forEach(function (tideData) {
-	  	var t = tideData.t;
-	  	var v = tideData.v;
-	  	var type = tideData.type;
-	  	
-	  	function tideTime(){
-		  	// fetch Closure for getting 12H time from API time data
-		  	// Add T and GMT offset to create valid UTC time format for consistent parsing across browsers
-	      	var utcTime = t.replace(' ','T');
-	      	utcTime = utcTime + '-05:00';
-	      	
-	      	// convert the ISO datetime into just 12 hour time display
-	      	// this is a bit convoluted to normalize API response to valid Date format by converting it back to unix timestamp and then use toLocaleString to expand it back into only 12 hour formatted time
-	      	var unixTimeZero = +Date.parse(utcTime);
-	      	var tideTime = new Date(unixTimeZero);
+	//getTideData(tideurl);
 	
-	      	var time = tideTime.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
-	      	return time;
-	  	}
-	  	
-	  	var time = tideTime();
-
-      	// round the tide height to 1 decimal place, needs to be converted into a number to apply toFixed
-      	var tideHeight = parseFloat(v);
-      	var tideHeightRounded = tideHeight.toFixed(1); // converts it to a string just FYI
-      	
-      	// Figure out if it's High or Low tide and apply formatting and readable text
-        type=="L" ? tide = '<dt>Low:</dt>' : tide = '<dt class=\"hightide\">High:</dt>';
-		var tide = tide + '<dd>' + time + ' <span class="tideheight">(' + tideHeightRounded + ')</span></dd>';
+	function getTideData(tideurl) {
+	
+		// fectch API call to grab tide data
+		fetch(tideurl).then(function(response) {
+		  return response.json();
+		}).then(function(data) {
+		  //console.log(data); // log the json response data
+		  networkDataReceived = true;
+		  console.log('Network tide data received.')
+		  
+		  // remove loading placeholder once .then promise executes
+		  var loading = document.getElementById("tidesLoading");
+		  loading.remove();
+		  
+		  // loop through the json data and set the variables
+		  data.predictions.forEach(function (tideData) {
+		  	var t = tideData.t;
+		  	var v = tideData.v;
+		  	var type = tideData.type;
+		  	
+		  	function tideTime(){
+			  	// fetch Closure for getting 12H time from API time data
+			  	// Add T and GMT offset to create valid UTC time format for consistent parsing across browsers
+		      	var utcTime = t.replace(' ','T');
+		      	utcTime = utcTime + '-05:00';
+		      	
+		      	// convert the ISO datetime into just 12 hour time display
+		      	// this is a bit convoluted to normalize API response to valid Date format by converting it back to unix timestamp and then use toLocaleString to expand it back into only 12 hour formatted time
+		      	var unixTimeZero = +Date.parse(utcTime);
+		      	var tideTime = new Date(unixTimeZero);
 		
-		// append the formatted tide data to the tides list
-		var tidesList = document.getElementById("tides");
-		tidesList.innerHTML += tide;
-	  });
-	  
-	}).catch(function(err) {
-	  console.log('Fetch problem: ' + err.message);
-	  // todo: add some human readable error messaging
-	  
-	  var tidesLoading = document.getElementById("tidesLoading");
-	  var errorContent = document.createTextNode("Error Loading Tide Data");
-	  tidesLoading.innerHTML = '';
-	  tidesLoading.appendChild(errorContent);
-	});
+		      	var time = tideTime.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+		      	return time;
+		  	}
+		  	
+		  	var time = tideTime();
 	
-	// date formatting to show current date info
-	function getDate() {
-	  
-	  var date = new Date();
-	  
-	  var weekday = new Array(7);
-	  weekday[0] = "Sunday";
-	  weekday[1] = "Monday";
-	  weekday[2] = "Tuesday";
-	  weekday[3] = "Wednesday";
-	  weekday[4] = "Thursday";
-	  weekday[5] = "Friday";
-	  weekday[6] = "Saturday";
-	
-	  function nth(d) {
-      if(d>3 && d<21) return 'th'; // thanks kennebec
-	      switch (d % 10) {
-		  	case 1:  return "st";
-			case 2:  return "nd";
-	        case 3:  return "rd";
-	        default: return "th";
-	      }
+	      	// round the tide height to 1 decimal place, needs to be converted into a number to apply toFixed
+	      	var tideHeight = parseFloat(v);
+	      	var tideHeightRounded = tideHeight.toFixed(1); // converts it to a string just FYI
+	      	
+	      	// Figure out if it's High or Low tide and apply formatting and readable text
+	        type=="L" ? tide = '<dt>Low:</dt>' : tide = '<dt class=\"hightide\">High:</dt>';
+			var tide = tide + '<dd>' + time + ' <span class="tideheight">(' + tideHeightRounded + ')</span></dd>';
+			
+			// append the formatted tide data to the tides list
+			var tidesList = document.getElementById("tides");
+			tidesList.innerHTML += tide;
+		  });
+		  
+		}).catch(function(err) {
+		  console.log('Fetch problem: ' + err.message);
+		  // todo: add some human readable error messaging
+		  
+		  var tidesLoading = document.getElementById("tidesLoading");
+		  var errorContent = document.createTextNode("Error Loading Tide Data");
+		  tidesLoading.innerHTML = '';
+		  tidesLoading.appendChild(errorContent);
+		});
+		
+		// date formatting to show current date info
+		function getDate() {
+		  
+		  var date = new Date();
+		  
+		  var weekday = new Array(7);
+		  weekday[0] = "Sunday";
+		  weekday[1] = "Monday";
+		  weekday[2] = "Tuesday";
+		  weekday[3] = "Wednesday";
+		  weekday[4] = "Thursday";
+		  weekday[5] = "Friday";
+		  weekday[6] = "Saturday";
+		
+		  function nth(d) {
+	      if(d>3 && d<21) return 'th'; // thanks kennebec
+		      switch (d % 10) {
+			  	case 1:  return "st";
+				case 2:  return "nd";
+		        case 3:  return "rd";
+		        default: return "th";
+		      }
+			}
+		  
+		  var day = weekday[date.getDay()];
+		  var date = date.getDate();
+		  var ordinalDate = date + nth(date);
+		  document.getElementById("date").innerHTML = '-' + ' ' + day + ' ' + ordinalDate;
 		}
-	  
-	  var day = weekday[date.getDay()];
-	  var date = date.getDate();
-	  var ordinalDate = date + nth(date);
-	  document.getElementById("date").innerHTML = '-' + ' ' + day + ' ' + ordinalDate;
+		
+		getDate();
+	
 	}
 	
-	getDate();
+	var networkDataReceived = false;
+
+	// fetch cached data
+	caches.match(tideurl).then(function(response) {
+	if (!response) throw Error("No data");
+	  return response.json();
+	  console.log(response.json());
+	}).then(function(data) {
+	  // don't overwrite newer network data
+	  console.log('caches.match then function called');
+	  if (!networkDataReceived) {
+	    getTideData(data);
+	    console.log('Tide data loaded from cache.');
+	  }
+	}).catch(function() {
+	  // we didn't get cached data, the network is our last hope:
+	  getTideData(tideurl);
+	}).catch(console.log('No data in Cache going to network.'));
+
 	
   </script>
 	</body>
