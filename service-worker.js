@@ -11,7 +11,8 @@ const precacheResources = [
   'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json',
   'favicon-16x16.png',
   'favicon-32x32.png',
-  'android-chrome-192x192.png'
+  'android-chrome-192x192.png',
+  'manifest.json',
 ];
 
 // Register Service Worker listeners
@@ -32,9 +33,25 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
 	console.log('Fetch intercepted for:', event.request.url);
+
+  // Code below from:
+  // https://carmalou.com/lets-take-this-offline/2019/04/16/cache-requests-with-service-worker.html
 	event.respondWith(
-  		caches.match(event.request).then(cachedResponse => {
-  			return cachedResponse || fetch(event.request);
-  		})
-  	);
+    (async function() {
+          var cache = await caches.open(cacheName);
+          var cachedFiles = await cache.match(event.request);
+          if(cachedFiles) {
+            return cachedFiles;
+          } else {
+              try {
+                var response = await fetch(event.request);
+                await cache.put(event.request, response.clone());
+                return response;
+              } catch(e) { 
+                console.log('Error Fetching Data in fetch addEventListener');
+              }
+          }
+      }())
+  )
+
 });

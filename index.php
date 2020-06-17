@@ -393,7 +393,7 @@ echo "</dl>";
 	
 	//var tideurl = null; // for testing error handling
 	
-	//getTideData(tideurl);
+	getTideData(tideurl);
 	
 	function getTideData(tideurl) {
 	
@@ -402,7 +402,6 @@ echo "</dl>";
 		  return response.json();
 		}).then(function(data) {
 		  //console.log(data); // log the json response data
-		  networkDataReceived = true;
 		  console.log('Network tide data received.')
 		  
 		  // remove loading placeholder once .then promise executes
@@ -488,26 +487,6 @@ echo "</dl>";
 		getDate();
 	
 	}
-	
-	var networkDataReceived = false;
-
-	// fetch cached data
-	caches.match(tideurl).then(function(response) {
-	if (!response) throw Error("No data");
-	  return response.json();
-	  console.log(response.json());
-	}).then(function(data) {
-	  // don't overwrite newer network data
-	  console.log('caches.match then function called');
-	  if (!networkDataReceived) {
-	    getTideData(data);
-	    console.log('Tide data loaded from cache.');
-	  }
-	}).catch(function() {
-	  // we didn't get cached data, the network is our last hope:
-	  getTideData(tideurl);
-	}).catch(console.log('No data in Cache going to network.'));
-
 	
   </script>
 	</body>
