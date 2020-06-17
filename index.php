@@ -1,7 +1,8 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en" dir="ltr">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="dns-prefetch" href="https://tidesandcurrents.noaa.gov/" >
 		<link rel="canonical" href="https://www.lawlessmedia.com/surf/" />
 		<!-- favicon info -->
 		<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -13,8 +14,6 @@
 		<meta name="msapplication-starturl" content="/surf/index.php">
 		<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="apple-mobile-web-app-capable" content="yes" />
-
-
 		<title>.: Masonboro Tide / Buoy Data for <?php echo date('M d') ?> :.</title>
 		<link rel="stylesheet" type="text/css" href="css/buoydata.css">
 	</head>
