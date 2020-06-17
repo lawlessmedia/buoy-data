@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="description" content="Local Tide And Buoy Data for Wilmington, NC area">
 		<link rel="dns-prefetch" href="https://tidesandcurrents.noaa.gov/" >
 		<link rel="canonical" href="https://www.lawlessmedia.com/surf/" />
 		<!-- favicon info -->
