@@ -1,5 +1,5 @@
 // Cache resources
-const cacheName = 'buoycache-v1';
+const cacheName = 'buoycache-v2';
 
 let todaysDate = new Date();
 let apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -34,24 +34,21 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
 	console.log('Fetch intercepted for:', event.request.url);
 
-  // Code below from:
-  // https://carmalou.com/lets-take-this-offline/2019/04/16/cache-requests-with-service-worker.html
-	event.respondWith(
-    (async function() {
-          var cache = await caches.open(cacheName);
-          var cachedFiles = await cache.match(event.request);
-          if(cachedFiles) {
-            return cachedFiles;
-          } else {
-              try {
-                var response = await fetch(event.request);
-                await cache.put(event.request, response.clone());
-                return response;
-              } catch(e) { 
-                console.log('Error Fetching Data in fetch addEventListener');
-              }
-          }
-      }())
+  event.respondWith(
+    // Try the network
+    fetch(event.request)
+      .then(function(response) {
+        return caches.open(cacheName)
+          .then(function(cache) {
+            // Put in cache if succeeds
+            cache.put(event.request, response.clone());
+            return response;
+          })
+      })
+      .catch(function(err) {
+          // Fallback to cache if network fails
+          return caches.match(event.request);
+    })
   )
-
+  
 });
