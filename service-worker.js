@@ -47,8 +47,14 @@ self.addEventListener('fetch', event => {
       })
       .catch(function(err) {
           // Fallback to cache if network fails
-          return caches.match(event.request);
+          return caches.match(event.request)
+            .then(function(response){
+              if (response === undefined) { 
+                return 'Tide Data Unavailable';
+              }
+            return response;
+            })
     })
   )
-  
+
 });
