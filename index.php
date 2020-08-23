@@ -418,7 +418,17 @@ echo "</dl>";
 			  	// fetch Closure for getting 12H time from API time data
 			  	// Add T and GMT offset to create valid UTC time format for consistent parsing across browsers
 		      	var utcTime = t.replace(' ','T');
-		      	utcTime = utcTime + '-05:00';
+
+		      	// Get Local Timezone Offset - returns UTC offset in seconds
+		      	const currentDate = new Date();
+		      	utcTimeOffset = currentDate.getTimezoneOffset();
+		      	console.log(utcTimeOffset);
+		      	var utcHourOffset = utcTimeOffset/60;
+		      	var usableOffset = '-' + utcHourOffset + ':00';
+		      	console.log(usableOffset)
+		      	// End Local Timezone Offset calculation... now to add it to the utcTime
+
+		      	utcTime = utcTime + '-04:00';
 		      	
 		      	// convert the ISO datetime into just 12 hour time display
 		      	// this is a bit convoluted to normalize API response to valid Date format by converting it back to unix timestamp and then use toLocaleString to expand it back into only 12 hour formatted time
