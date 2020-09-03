@@ -107,7 +107,7 @@ if ( (!(file_exists($cache_file))) || ((filectime($cache_file) + $cache_time - $
 	if(!$fp) {
 
 		echo "Buoy data currently unavailable - server appears down<br><br><br>\n";
-		return;
+		//return;
 
 	} else {
 		// https://stackoverflow.com/questions/32820376/fopen-accept-self-signed-certificate
@@ -126,7 +126,7 @@ if ( (!(file_exists($cache_file))) || ((filectime($cache_file) + $cache_time - $
 		if(!$fpread) {
 		
 			echo "Buoy data currently unavailable - file could not be loaded<br><br><br>\n";
-			return;
+			//return;
 		
 		} else {
 	
@@ -135,7 +135,7 @@ if ( (!(file_exists($cache_file))) || ((filectime($cache_file) + $cache_time - $
 			if(!$fpwrite) {
 	
 				echo "Buoy data currently unavailable - could not read cache file<br><br><br>\n\n";
-				return;
+				//return;
 	
 			} else {
 	
