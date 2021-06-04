@@ -385,11 +385,14 @@ echo "</dl>";
 	// END PWA code
 	
 	// create todays date as a formatted var for use in API call date range
-	var todaysDate = new Date();
-	apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+	//var todaysDate = new Date();
+	//apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
 	//console.log(apiDate); // current date in mm/dd/yyyy format for API call params
 
-	var tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
+	//var tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
+	
+	// Simplified date attribute by using date=today
+	var tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&date=today&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
 	
 	//var tideurl = null; // for testing error handling
 	
