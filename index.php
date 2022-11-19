@@ -36,8 +36,12 @@
 
 # build 2 arrays to hold the variables defined above
 # These are used in the foreach loop below
-$arrBuoy = array($buoy0, $buoy1, $buoy2);
-$arrName = array($name0, $name1, $name2);
+//$arrBuoy = array($buoy0, $buoy1, $buoy2);
+//$arrName = array($name0, $name1, $name2);
+//Comment these out until Wilmington Harbor buoy comes back online
+    
+$arrBuoy = array($buoy0, $buoy2);
+$arrName = array($name0, $name2);
 
 # foreach loop to cycle through each buoy in the array
 foreach ($arrBuoy as $key => $stationNumber) {

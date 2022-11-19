@@ -11,21 +11,6 @@ body.dark-mode {
 body.dark-mode dt {
 	  color: #3CB371;
 }
-@media screen and (prefers-color-scheme: light) {
-  body {
-  	background-color: #f4f4f4;
-  	color: #444;
-  }
-}
-@media (prefers-color-scheme: dark) {
-  body {
-  	background-color: #333;
-  	color: #f4f4f4;
-  }
-  dt {
-	  color: #3CB371;
-  }
-}
 h2 {
 	font-weight: 300;
 	font-size: 1.6rem;
@@ -89,3 +74,20 @@ dd .tideheight {
 		margin: 0 0 0 33.5vw;
 	}
 }
+
+@media screen and (prefers-color-scheme: light) {
+  body {
+  	background-color: #f4f4f4;
+  	color: #444;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  body {
+  	background-color: #333;
+  	color: #f4f4f4;
+  }
+  dt {
+	  color: #3CB371;
+  }
+}
+
