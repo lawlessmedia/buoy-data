@@ -14,7 +14,7 @@
 		<meta name="theme-color" content="#dddddd">
 		<meta name="msapplication-starturl" content="/surf/index.php">
 		<meta id="viewport" name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
 		<title>.: Masonboro Tide / Buoy Data for <?php echo date('M d') ?> :.</title>
 		<link rel="stylesheet" type="text/css" href="css/buoydata.css">
 	</head>
@@ -367,34 +367,43 @@ echo "</dl>";
 ?>
 
   <script>
-  	// START PWA code
+  // START PWA code
   	
   	// Register Service Worker
-	if ('serviceWorker' in navigator) {
-	  window.addEventListener('load', () => {
-	    navigator.serviceWorker.register('service-worker.js')
-	    .then(registration => {
-	      console.log('Service Worker is registered', registration);
-	    })
-	    .catch(err => {
-	      console.error('Registration failed:', err);
-	    });
-	  });
-	}
+		const registerServiceWorker = async () => {
+		  if ('serviceWorker' in navigator) {
+		    try {
+		      const registration = await navigator.serviceWorker.register('service-worker.js', {
+		        scope: '/surf/',
+		      });
+		      if (registration.installing) {
+		        console.log('Service worker installing');
+		      } else if (registration.waiting) {
+		        console.log('Service worker installed');
+		      } else if (registration.active) {
+		        console.log('Service worker active');
+		      }
+		    } catch (error) {
+		      console.error('Registration failed:', error);
+		    }
+		  }
+		};
+
+		registerServiceWorker();
 	
 	// END PWA code
 	
-	// create todays date as a formatted var for use in API call date range
-	//var todaysDate = new Date();
-	//apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-	//console.log(apiDate); // current date in mm/dd/yyyy format for API call params
+	// create todays date as a formatted const for use in API call date range
+	//const todaysDate = new Date();
+	//apiDate = todaysDate.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+	//console.log(apiDate); // current date in yyyy-mm-dd format for API call params
 
-	//var tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
+	//const tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
 	
 	// Simplified date attribute by using date=today
-	var tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&date=today&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
+	const tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&date=today&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
 	
-	//var tideurl = null; // for testing error handling
+	//const tideurl = null; // for testing error handling
 	
 	getTideData(tideurl);
 	

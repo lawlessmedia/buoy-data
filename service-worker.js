@@ -2,13 +2,12 @@
 const cacheName = 'buoycache-v2';
 
 let todaysDate = new Date();
-let apiDate = todaysDate.toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+let apiDate = todaysDate.toLocaleString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
 	
 const precacheResources = [
   '/surf/',
   'index.php',
   'css/buoydata.css',
-  'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json',
   'favicon-16x16.png',
   'favicon-32x32.png',
   'android-chrome-192x192.png',
@@ -20,8 +19,8 @@ self.addEventListener('install', event => {
   console.log('Service worker installing...');
   event.waitUntil(
 	caches.open(cacheName).then(cache => {
+    console.log('Caches added.');
 		return cache.addAll(precacheResources);
-		console.log('Caches added.');
 	})
   );
   //self.skipWaiting(); // Comment out this line once testing is done
