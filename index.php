@@ -32,12 +32,12 @@ $buoys = [
 ];
 
 # Preferences
-$gmtOffset = -5;      # Timezone offset
-$clock = 0;           # 0 = 12-hour, 1 = 24-hour
-$intlDateFormat = 0;  # 0 = MM-DD-YYYY, 1 = DD-MM-YYYY
-$metric = 0;          # 0 = English, 1 = Metric
-$cache_time = 3600;   # Cache expiration in seconds (3600 = 1 hour)
-$timeout = 10;        # Timeout duration for fetching data
+$gmtOffset 			= -5;		# Timezone offset
+$clock 					= 0;		# 0 = 12-hour, 1 = 24-hour
+$intlDateFormat = 0;		# 0 = MM-DD-YYYY, 1 = DD-MM-YYYY
+$metric 				= 0;		# 0 = English, 1 = Metric
+$cache_time 		= 3600;	# Cache expiration in seconds (3600 = 1 hour)
+$timeout 				= 10;		# Timeout duration for fetching data
 
 # Ensure the cache directory exists
 $cache_dir = "tmp";
