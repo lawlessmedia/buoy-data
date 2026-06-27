@@ -5,7 +5,6 @@
 		<meta name="description" content="Local Tide And Buoy Data for Wilmington, NC area">
 		<link rel="dns-prefetch" href="https://tidesandcurrents.noaa.gov/" >
 		<link rel="canonical" href="https://www.lawlessmedia.com/surf/" />
-		<!-- favicon info -->
 		<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 		<link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32">
 		<link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
@@ -25,344 +24,128 @@
 </dl>
 
 <?php
-# Define the buoys into variables to use in building the array	
-	$buoy0 = '41110';
-	$name0 = 'Masonboro Inlet ' . $buoy0;
-    $buoy1 = '41108';
-    $name1 = 'Wilmington Harbor ' . $buoy1;
-    $buoy2 = '41013';
-    $name2 = 'Frying Pan Shoals ' . $buoy2;
-    
+# Define the buoys and their names in a single associative array
+$buoys = [
+    '41110' => 'Masonboro Inlet 41110',
+    '41108' => 'Wilmington Harbor 41108',
+    '41013' => 'Frying Pan Shoals 41013'
+];
 
-# build 2 arrays to hold the variables defined above
-# These are used in the foreach loop below
-$arrBuoy = array($buoy0, $buoy1, $buoy2);
-$arrName = array($name0, $name1, $name2);
+# Preferences
+$gmtOffset = -5;      # Timezone offset
+$clock = 0;           # 0 = 12-hour, 1 = 24-hour
+$intlDateFormat = 0;  # 0 = MM-DD-YYYY, 1 = DD-MM-YYYY
+$metric = 0;          # 0 = English, 1 = Metric
+$cache_time = 3600;   # Cache expiration in seconds (3600 = 1 hour)
+$timeout = 10;        # Timeout duration for fetching data
 
-# foreach loop to cycle through each buoy in the array
-foreach ($arrBuoy as $key => $stationNumber) {
-
-# Set the GMT (Greenich Mean Time) offset for the location of the 
-# buoy you are getting reports for. Pacific Standard Time is a -8 hour 
-#offset from GMT; leave this unchanged if that is your desired timezone.
-$gmtOffset = -5;
-
-# 12-hour or 24-hour clock preference
-# For a 12-hour clock, set $clock = 0;
-# For a 24-hour clock, set $clock = 1;
-$clock = 0;
-
-# Date format choice.
-# For U.S.-style dates (MM-DD-YYYY), set $intlDateFormat = 0;
-# For international-style dates(DD-MM-YYYY), set $intlDateFormat = 1;
-$intlDateFormat = 0;
-
-# Choose metric or English measurements.
-# For English measurements, set $metric = 0;
-# For metric measurements, set $metric = 1;
-$metric = 0;
-
-# You can customize the phpBuoy output HTML table, if you want. 
-# If you are using phpBuoy as an nested include file within an existing
-# table-based page layout, you can probably leave this as-is.
-
-echo "<h2>" . $arrName[$key] . "</h2>";
-echo "<dl>";
-
-#########################
-# END OF CUSTOMIZATIONS #
-#########################
-
-################################################################################################
-# Really no need to tweak the code from this point down, unless you want to make it better! :) #
-################################################################################################
-
-# Location of remote backend file and local cache file
-# $backend = "http://www.surfimplement.com/include/46063.txt";
-$backend = "https://www.ndbc.noaa.gov/data/realtime2/".$stationNumber.".txt";
-$cache_file = "tmp/buoydata.".$stationNumber.".cache";
-
-# Set timeout duration for establishing a connection
-# with NDBC's servers...if they're down, we don't want 
-# the script to bomb in graceless fashion. The number
-# is in seconds.
-$timeout = 10;
-
-# Cache file time-based nag stuff
-$cache_time = 3600; # Buoy readings are only updated every hour so cache the current reading until the next is available
-$time = explode(" ", microtime());
-srand((double)microtime()*1000000);
-$cache_time_rnd = 300 - rand(0, 600);
-
-$maxReadings = 3; # Takes into account the first two lines of buoy data, which are column headings like YY, DD, HH, ATMP, etc.
-
-$numLines = 0;    # Line pointer initialization
-
-if ( (!(file_exists($cache_file))) || ((filectime($cache_file) + $cache_time - $time[1]) + $cache_time_rnd < 0) || (!(filesize($cache_file))) ) {
-
-	$url = parse_url($backend);
-
-	$fp = fsockopen($url['host'], "80", $errno, $errstr, $timeout);
-	
-	if(!$fp) {
-
-		echo "Buoy data currently unavailable - server appears down<br><br><br>\n";
-		//return;
-
-	} else {
-		// https://stackoverflow.com/questions/32820376/fopen-accept-self-signed-certificate
-		$opts = array(
-		    'ssl' => array(
-		        'verify_peer' => false,
-		        'verify_peer_name' => false,
-		    ),
-		);
-		
-		$context = stream_context_create($opts);
-		
-		$fpread = fopen($backend, 'rb', false, $context);
-		stream_set_timeout($fpread, 5);
-	
-		if(!$fpread) {
-		
-			echo "Buoy data currently unavailable - file could not be loaded<br><br><br>\n";
-			//return;
-		
-		} else {
-	
-			$fpwrite = fopen($cache_file, 'w');
-	
-			if(!$fpwrite) {
-	
-				echo "Buoy data currently unavailable - could not read cache file<br><br><br>\n\n";
-				//return;
-	
-			} else {
-	
-		
-				$line = fgets($fpread, 1024);
-				
-				while((!feof($fpread)) && ($numLines < $maxReadings)) {
-			
-					$line = preg_replace("%MM%i",0,$line);
-			
-					# #YY  MM DD hh mm WDIR WSPD GST  WVHT   DPD   APD MWD   PRES  ATMP  WTMP  DEWP  VIS PTDY  TIDE
-
-					list($YY,$MM,$DD,$HH,$MIN,$WD,$WSPD,$GST,$WVHT,$DPD,$APD,$MWD,$PRES,$ATMP,$WTMP,$DEWP,$VIS,$PTDY,$TIDE,$WOOF) = preg_split("/[\s,]+/", $line);
-
-					# Format the date to MM-DD-YYYY or DD-MM-YYYY
-					if($intlDateFormat == 0) {
-	
-						$formattedDate = $MM."-".$DD."-".$YY;
-					
-					} elseif($intlDateFormat != 0) {
-	
-						$formattedDate = $DD."-".$MM."-".$YY;
-					
-					}
-	
-					$HH = (int)$HH + $gmtOffset; # Compensate for GMT timezone offset | cast $HH to int to prevent PHP 7 E_WARNING
-					
-					if($clock == 0) {
-	
-						if($HH < 1) {
-				
-							$hour = $HH + 12; # 12hour clock fix
-							$ampm = "PM";
-				
-						} elseif($HH > 12) {
-		
-							$hour = $HH - 12; # 12hour clock fix
-							$ampm = "PM";
-
-						} elseif($HH == 12) {
-
-							$hour = $HH;
-							$ampm = "PM";
-		
-						} else {
-	
-							$hour = $HH;
-							$ampm = "AM";
-	
-						}
-	
-					} elseif($clock != 0) {
-	
-						if($HH < 0) {
-				
-							$hour = $HH + 24; # 24hour clock fix
-				
-						} 
-	
-					}
-	
-					# Metric-to-English conversion stuff	
-					if($metric == 0) {
-	
-						$windSpeed = "kts."; # "Knots" abbrev.
-						$waveHeight = "ft."; # "Feet" abbrev.
-						$temp = "F"; # "Fahrenheit" abbrev.
-
-						if($WVHT != 0) {
-
-							$WVHT = round($WVHT * 3.28, 1); # Convert wave height from feet to meters
-						
-						}
-
-						if($WSPD != 0) {
-
-							$WSPD = round($WSPD * 1.9425, 1); # Convert wind speed from m/s to knots
-						
-						}
-
-						if($GST != 0) {
-
-							$GST = round($GST * 1.9425, 1); # Convert gust speed from m/s to knots
-	
-						}
-
-						if($ATMP != 0) {
-
-							$ATMP = round(($ATMP * 1.8) + 32, 1); # Convert air temp from C to F
-	
-						}
-						
-						if($WTMP != 0) {
-
-							$WTMP = round(($WTMP * 1.8) + 32, 1); # Convert water temp from C to F
-						
-						}	
-
-					} elseif($metric != 0) {
-	
-						$windSpeed = "m/s"; # "Meters/Second" abbrev.
-						$waveHeight = "m"; # "Meters" abbrev.
-						$temp = "C"; # "Celcius" abbrev.
-	
-					}
-	
-					# Wind direction conversion stuff
-
-					if($WD != 0) {
-
-						if(($WD >= 348 && $WD <= 360) || ($WD >= 0 && $WD < 11)) {
-		
-							$WDIR = "N";
-		
-						} elseif($WD >= 326 && $WD < 348) {
-		
-							$WDIR = "NNW";
-		
-						} elseif($WD >= 303 && $WD < 326) {
-		
-							$WDIR = "NW";
-		
-						} elseif($WD >= 281 && $WD < 303) {
-		
-							$WDIR = "WNW";
-		
-						} elseif($WD >= 258 && $WD < 281) {
-		
-							$WDIR = "W";
-		
-						} elseif($WD >= 236 && $WD < 258) {
-		
-							$WDIR = "WSW";
-		
-						} elseif($WD >= 213 && $WD < 236) {
-		
-							$WDIR = "SW";
-		
-						} elseif($WD >= 191 && $WD < 213) {
-		
-							$WDIR = "SSW";
-		
-						} elseif($WD >= 168 && $WD < 191) {
-		
-							$WDIR = "S";
-		
-						} elseif($WD >= 146 && $WD < 168) {
-		
-							$WDIR = "SSE";
-		
-						} elseif($WD >= 123 && $WD < 146) {
-		
-							$WDIR = "SE";
-		
-						} elseif($WD >= 101 && $WD < 123) {
-		
-							$WDIR = "ESE";
-		
-						} elseif($WD >= 78 && $WD < 101) {
-		
-							$WDIR = "E";
-		
-						} elseif($WD >= 56 && $WD < 78) {
-		
-							$WDIR = "ENE";
-		
-						} elseif($WD >= 33 && $WD < 56) {
-		
-							$WDIR = "NE";
-		
-						} elseif($WD >= 11 && $WD < 33) {
-		
-							$WDIR = "NNE";
-		
-						} else {
-				
-							$WDIR = "No Wind Data";
-		
-						}
-
-					} else {
-
-						$WDIR = 0;
-
-					}
-			
-					# Print out results of parsing
-					if($numLines >= 2) {
-					
-					# Check to see if there is a real value, if not don't display anything for that null value field
-					($WD != 0)?$WDIR = "<dt>Wind Direction:</dt><dd>$WDIR ($WD&ordm;)</dd>" : $WDIR = "";
-					($WSPD != 0)?$WSPD = "<dt>Wind Speed:</dt><dd>$WSPD $windSpeed</dd>" : $WSPD = "";
-					($GST  != 0)?$GST  = "<dt>Gust Speed:</dt><dd>$GST $windSpeed</dd>" : $GST = "";
-					($WVHT != 0)?$WVHT  = "<dt>Wave Height:</dt><dd>$WVHT $waveHeight</dd>" : $WVHT = "";
-					($DPD != 0)?$DPD  = "<dt>Swell Period:</dt><dd>$DPD sec.</dd>" : $DPD = "";
-					($ATMP != 0)?$ATMP = "<dt>Air Temp:</dt><dd>$ATMP&ordm;$temp</dd>" : $ATMP = "";
-					
-						fputs($fpwrite, "<dt>Report Time:</dt><dd>$hour:$MIN$ampm, $formattedDate</dd>$WDIR $WSPD $GST $WVHT $DPD $ATMP <dt>Water Temp:</dt><dd>$WTMP&ordm;$temp</dd>\n");
-
-					}
-			
-					$line = fgets($fpread, 1024);
-					$numLines++;
-		
-				}
-	
-			}	
-		
-			fclose($fpread);
-	
-		}
-	
-		fclose($fpwrite);
-
-	}
-
-	fclose($fp);
-
+# Ensure the cache directory exists
+$cache_dir = "tmp";
+if (!is_dir($cache_dir)) {
+    mkdir($cache_dir, 0755, true);
 }
 
-if (file_exists($cache_file)) {
+foreach ($buoys as $stationNumber => $stationName) {
 
-	include($cache_file);
+    echo "<h2>{$stationName}</h2>\n<dl>\n";
 
-}
+    $buoyurl = "https://www.ndbc.noaa.gov/data/realtime2/{$stationNumber}.txt";
+    $cache_file = "{$cache_dir}/buoydata.{$stationNumber}.cache";
 
-echo "</dl>";
+    # Determine if we need to fetch new data
+    $cache_is_valid = file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time);
+
+    # If cache is missing or expired, try to update it
+    if (!$cache_is_valid) {
+        
+        $context = stream_context_create([
+            'http' => ['timeout' => $timeout],
+            'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false]
+        ]);
+
+        # Fetch data suppressing warnings if server is down
+        $raw_data = @file_get_contents($buoyurl, false, $context);
+
+        if ($raw_data) {
+            $lines = explode("\n", trim($raw_data));
+            
+            # Ensure we have enough lines (Line 0: headers, Line 1: units, Line 2: latest reading)
+            if (isset($lines[2])) {
+                
+                # NDBC uses "MM" for missing data; replace with "0"
+                $line = str_ireplace("MM", "0", $lines[2]);
+                
+                # Split the line by spaces into variables
+                list($YY, $MM, $DD, $HH, $MIN, $WD, $WSPD, $GST, $WVHT, $DPD, $APD, $MWD, $PRES, $ATMP, $WTMP, $DEWP, $VIS, $PTDY, $TIDE) = preg_split("/[\s]+/", $line);
+
+                # Date Formatting
+                $formattedDate = ($intlDateFormat == 0) ? "{$MM}-{$DD}-{$YY}" : "{$DD}-{$MM}-{$YY}";
+
+                # Time Formatting
+                $HH = (int)$HH + $gmtOffset;
+                
+                if ($clock == 0) { // 12-hour clock
+                    if ($HH < 1) { $hour = $HH + 12; $ampm = "PM"; }
+                    elseif ($HH > 12) { $hour = $HH - 12; $ampm = "PM"; }
+                    elseif ($HH == 12) { $hour = $HH; $ampm = "PM"; }
+                    else { $hour = $HH; $ampm = "AM"; }
+                } else { // 24-hour clock
+                    $hour = ($HH < 0) ? $HH + 24 : $HH;
+                    $ampm = "";
+                }
+
+                # Unit Conversions
+                if ($metric == 0) {
+                    $windSpeedUnit = "kts.";
+                    $waveHeightUnit = "ft.";
+                    $tempUnit = "F";
+
+                    if ($WVHT != 0) $WVHT = round($WVHT * 3.28084, 1); # Convert wave height from feet to meters
+                    if ($WSPD != 0) $WSPD = round($WSPD * 1.94384, 1); # Convert wind speed from m/s to knots
+                    if ($GST != 0)  $GST = round($GST * 1.94384, 1); # Convert gust speed from m/s to knots
+                    if ($ATMP != 0) $ATMP = round(($ATMP * 1.8) + 32, 1); # Convert air temp from C to F
+                    if ($WTMP != 0) $WTMP = round(($WTMP * 1.8) + 32, 1); # Convert water temp from C to F
+                } else {
+                    $windSpeedUnit = "m/s";
+                    $waveHeightUnit = "m";
+                    $tempUnit = "C";
+                }
+
+                # Wind Direction Calculation
+                # Convert wind direction in degrees to cardinal wind direction
+                if ($WD != 0) {
+                    $compass = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW","N"];
+                    $WDIR_text = $compass[round($WD / 22.5) % 16];
+                } else {
+                    $WDIR_text = "No Wind Data";
+                }
+
+                # Build Output HTML
+                $html = "<dt>Report Time:</dt><dd>{$hour}:{$MIN}{$ampm}, {$formattedDate}</dd>\n";
+                
+                if ($WD != 0)   $html .= "<dt>Wind Direction:</dt><dd>{$WDIR_text} ({$WD}&ordm;)</dd>\n";
+                if ($WSPD != 0) $html .= "<dt>Wind Speed:</dt><dd>{$WSPD} {$windSpeedUnit}</dd>\n";
+                if ($GST != 0)  $html .= "<dt>Gust Speed:</dt><dd>{$GST} {$windSpeedUnit}</dd>\n";
+                if ($WVHT != 0) $html .= "<dt>Wave Height:</dt><dd>{$WVHT} {$waveHeightUnit}</dd>\n";
+                if ($DPD != 0)  $html .= "<dt>Swell Period:</dt><dd>{$DPD} sec.</dd>\n";
+                if ($ATMP != 0) $html .= "<dt>Air Temp:</dt><dd>{$ATMP}&ordm;{$tempUnit}</dd>\n";
+                
+                $html .= "<dt>Water Temp:</dt><dd>{$WTMP}&ordm;{$tempUnit}</dd>\n";
+
+                # Save atomically with an exclusive lock to prevent partial reads
+                file_put_contents($cache_file, $html, LOCK_EX);
+            }
+        }
+    }
+
+    # Display the cache file if it exists (whether it's freshly downloaded or stale)
+    if (file_exists($cache_file)) {
+        include($cache_file);
+    } else {
+        echo "<dt>Status:</dt><dd>Buoy data currently unavailable.</dd>\n";
+    }
+
+    echo "</dl>\n";
 }
 ?>
 
