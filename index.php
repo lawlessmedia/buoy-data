@@ -140,7 +140,7 @@ foreach ($buoys as $stationNumber => $stationName) {
 
     # Display the cache file if it exists (whether it's freshly downloaded or stale)
     if (file_exists($cache_file)) {
-        include($cache_file);
+        echo file_get_contents($cache_file);
     } else {
         echo "<dt>Status:</dt><dd>Buoy data currently unavailable.</dd>\n";
     }
