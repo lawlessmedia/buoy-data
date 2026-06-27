@@ -59,8 +59,7 @@ foreach ($buoys as $stationNumber => $stationName) {
     if (!$cache_is_valid) {
         
         $context = stream_context_create([
-            'http' => ['timeout' => $timeout],
-            'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false]
+            'http' => ['timeout' => $timeout]
         ]);
 
         # Fetch data suppressing warnings if server is down
