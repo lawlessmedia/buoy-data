@@ -55,7 +55,7 @@ foreach ($buoys as $stationNumber => $stationName) {
     # Determine if we need to fetch new data
     $cache_is_valid = file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time);
 
-    # If cache is missing or expired, try to update it
+    # If cache data is missing or expired, try to update it
     if (!$cache_is_valid) {
         
         $context = stream_context_create([
@@ -133,6 +133,13 @@ foreach ($buoys as $stationNumber => $stationName) {
 
                 # Save atomically with an exclusive lock to prevent partial reads
                 file_put_contents($cache_file, $html, LOCK_EX);
+
+                if (file_exists($cache_file)) {
+	        		echo file_get_contents($cache_file);
+			    } else {
+			    	# Handle cache file not existing
+			        echo "<dt>Status:</dt><dd>Buoy data currently unavailable. Fresh cache file does not exist.</dd>\n";
+			    }
             }
         }
     } else {
@@ -141,7 +148,7 @@ foreach ($buoys as $stationNumber => $stationName) {
 	        echo file_get_contents($cache_file);
 	    } else {
 	    	# Handle cahce file not existing
-	        echo "<dt>Status:</dt><dd>Buoy data currently unavailable. Cache file does not exist.</dd>\n";
+	        echo "<dt>Status:</dt><dd>Buoy data currently unavailable. Stale cache file does not exist.</dd>\n";
 	    }
     }
 
