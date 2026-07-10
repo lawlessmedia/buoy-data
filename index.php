@@ -153,6 +153,8 @@ foreach ($buoys as $stationNumber => $stationName) {
 			        echo "<dt>Status:</dt><dd>Buoy data currently unavailable. Fresh cache file does not exist.</dd>\n";
 			    }
             }
+        } else {
+        	echo "Raw data is empty";
         }
     } else {
     	# If cache is valid show the cached file
