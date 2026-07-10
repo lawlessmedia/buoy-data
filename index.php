@@ -53,9 +53,11 @@ foreach ($buoys as $stationNumber => $stationName) {
     $cache_file = "{$cache_dir}/buoydata.{$stationNumber}.cache";
 
     # Determine if we need to fetch new data
+    clearstatcache(true, $cache_file);
     $cache_is_valid = file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time);
 
     # If cache data is missing or expired, try to update it
+    # TODO - if you delete cache file things act weird
     if (!$cache_is_valid) {
         
         $context = stream_context_create([
@@ -76,6 +78,15 @@ foreach ($buoys as $stationNumber => $stationName) {
                 
                 # Split the line by spaces into variables
                 list($YY, $MM, $DD, $HH, $MIN, $WD, $WSPD, $GST, $WVHT, $DPD, $APD, $MWD, $PRES, $ATMP, $WTMP, $DEWP, $VIS, $PTDY, $TIDE) = preg_split("/[\s]+/", $line);
+
+                # Check GMT date time to set correct date
+                # Date $DD will show tomorrows date if GMT time $HH is used and time is within the $gmtoffset
+				if( (int)$HH <= abs($gmtOffset) ) {
+				  $DD = (int)$DD - 1;
+				}
+
+				# Cast $MM to int to remove leading 0 from month display
+				$MM = int($MM);
 
                 # Date Formatting
                 $formattedDate = ($intlDateFormat == 0) ? "{$MM}-{$DD}-{$YY}" : "{$DD}-{$MM}-{$YY}";
