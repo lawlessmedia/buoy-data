@@ -53,19 +53,19 @@ foreach ($buoys as $stationNumber => $stationName) {
     $cache_file = "{$cache_dir}/buoydata.{$stationNumber}.cache";
 
     # Determine if we need to fetch new data
-    clearstatcache(true, $cache_file);
+    //clearstatcache(true, $cache_file);
     $cache_is_valid = file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time);
 
     # If cache data is missing or expired, try to update it
     # TODO - if you delete cache file things act weird
     if (!$cache_is_valid) {
-        
+
         $context = stream_context_create([
             'http' => ['timeout' => $timeout]
         ]);
 
-        # Fetch data suppressing warnings if server is down
-        $raw_data = @file_get_contents($buoyurl, false, $context);
+        # Fetch data from buoyurl
+        $raw_data = file_get_contents($buoyurl, false, $context);
 
         if ($raw_data) {
             $lines = explode("\n", trim($raw_data));
@@ -86,7 +86,7 @@ foreach ($buoys as $stationNumber => $stationName) {
 				}
 
 				# Cast $MM to int to remove leading 0 from month display
-				$MM = int($MM);
+				$MM = (int)$MM;
 
                 # Date Formatting
                 $formattedDate = ($intlDateFormat == 0) ? "{$MM}-{$DD}-{$YY}" : "{$DD}-{$MM}-{$YY}";
