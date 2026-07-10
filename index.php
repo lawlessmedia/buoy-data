@@ -127,6 +127,7 @@ foreach ($buoys as $stationNumber => $stationName) {
                 if ($GST != 0)  $html .= "<dt>Gust Speed:</dt><dd>{$GST} {$windSpeedUnit}</dd>\n";
                 if ($WVHT != 0) $html .= "<dt>Wave Height:</dt><dd>{$WVHT} {$waveHeightUnit}</dd>\n";
                 if ($DPD != 0)  $html .= "<dt>Swell Period:</dt><dd>{$DPD} sec.</dd>\n";
+                if ($MWD != 0)  $html .= "<dt>Swell Direction:</dt><dd>{$MWD}&ordm;</dd>\n";
                 if ($ATMP != 0) $html .= "<dt>Air Temp:</dt><dd>{$ATMP}&ordm;{$tempUnit}</dd>\n";
                 
                 $html .= "<dt>Water Temp:</dt><dd>{$WTMP}&ordm;{$tempUnit}</dd>\n";
