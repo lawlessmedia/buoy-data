@@ -45,6 +45,17 @@ if (!is_dir($cache_dir)) {
     mkdir($cache_dir, 0755, true);
 }
 
+# Get buoy data using curl request
+function get_content($URL){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_URL, $URL);
+    $data = curl_exec($ch);
+    curl_close($ch);
+    return $data;
+}
+
 foreach ($buoys as $stationNumber => $stationName) {
 
     echo "<h2>{$stationName}</h2>\n<dl>\n";
@@ -60,12 +71,8 @@ foreach ($buoys as $stationNumber => $stationName) {
     # TODO - if you delete cache file things act weird
     if (!$cache_is_valid) {
 
-        $context = stream_context_create([
-            'http' => ['timeout' => $timeout]
-        ]);
-
         # Fetch data from buoyurl
-        $raw_data = file_get_contents($buoyurl, false, $context);
+        $raw_data = get_content($buoyurl);
 
         if ($raw_data) {
             $lines = explode("\n", trim($raw_data));
@@ -154,7 +161,8 @@ foreach ($buoys as $stationNumber => $stationName) {
 			    }
             }
         } else {
-        	echo "Raw data is empty";
+        	echo "Raw data is empty - line 164";
+        	echo file_get_contents($cache_file);
         }
     } else {
     	# If cache is valid show the cached file
