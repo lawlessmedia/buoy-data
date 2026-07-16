@@ -161,7 +161,7 @@ foreach ($buoys as $stationNumber => $stationName) {
 			    }
             }
         } else {
-        	echo "Raw data is empty - line 164";
+        	//echo "Raw data is empty - line 164";
         	echo file_get_contents($cache_file);
         }
     } else {
