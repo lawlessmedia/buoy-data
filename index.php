@@ -211,6 +211,8 @@ foreach ($buoys as $stationNumber => $stationName) {
 	//console.log(apiDate); // current date in yyyy-mm-dd format for API call params
 
 	//const tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + apiDate + '&end_date=' + apiDate + '&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
+
+	// https://tidesandcurrents.noaa.gov/stationhome.html?id=8658559
 	
 	// Simplified date attribute by using date=today
 	const tideurl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&date=today&datum=MLLW&station=8658559&time_zone=lst_ldt&units=english&interval=hilo&format=json';
@@ -226,7 +228,11 @@ foreach ($buoys as $stationNumber => $stationName) {
 		  return response.json();
 		}).then(function(data) {
 		  //console.log(data); // log the json response data
-		  console.log('Network tide data received.')
+		  console.log('Network tide data received.');
+		  
+		  if(data.error) {
+		  	console.log(data);
+		  }
 		  
 		  // remove loading placeholder once .then promise executes
 		  var loading = document.getElementById("tidesLoading");
@@ -279,12 +285,9 @@ foreach ($buoys as $stationNumber => $stationName) {
 		  
 		}).catch(function(err) {
 		  console.log('Fetch problem: ' + err.message);
-		  // todo: add some human readable error messaging
-		  
-		  var tidesLoading = document.getElementById("tidesLoading");
-		  var errorContent = document.createTextNode("Error Loading Tide Data");
-		  tidesLoading.innerHTML = '';
-		  tidesLoading.appendChild(errorContent);
+
+		  var tidesList = document.getElementById("tides");
+		  tidesList.innerHTML = '<center>Error Loading Tide Data</center>';
 		});
 		
 		// date formatting to show current date info
