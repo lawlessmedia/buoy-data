@@ -27,7 +27,7 @@
 # Define the buoys and their names in a single associative array
 $buoys = [
     '41110' => 'Masonboro Inlet 41110',
-    '41108' => 'Wilmington Harbor 41108',
+    //'41108' => 'Wilmington Harbor 41108',
     '41013' => 'Frying Pan Shoals 41013'
 ];
 
