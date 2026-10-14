@@ -27,8 +27,8 @@
 # Define the buoys and their names in a single associative array
 $buoys = [
     '41110' => 'Masonboro Inlet 41110',
-    //'41108' => 'Wilmington Harbor 41108',
-    '41013' => 'Frying Pan Shoals 41013'
+    '41013' => 'Frying Pan Shoals 41013',
+	//'41108' => 'Wilmington Harbor 41108'
 ];
 
 # Preferences
@@ -46,7 +46,7 @@ if (!is_dir($cache_dir)) {
 }
 
 # Get buoy data using curl request
-function get_content($URL){
+function get_content($URL, $timeout){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
@@ -64,15 +64,17 @@ foreach ($buoys as $stationNumber => $stationName) {
     $cache_file = "{$cache_dir}/buoydata.{$stationNumber}.cache";
 
     # Determine if we need to fetch new data
-    //clearstatcache(true, $cache_file);
+    clearstatcache(true, $cache_file);
     $cache_is_valid = file_exists($cache_file) && (time() - filemtime($cache_file) < $cache_time);
+
+    //echo "<p style=\"text-align:center;\">Cache status: " . $cache_is_valid . "</p>";
 
     # If cache data is missing or expired, try to update it
     # TODO - if you delete cache file things act weird
     if (!$cache_is_valid) {
 
         # Fetch data from buoyurl
-        $raw_data = get_content($buoyurl);
+        $raw_data = get_content($buoyurl, $timeout);
 
         if ($raw_data) {
             $lines = explode("\n", trim($raw_data));
@@ -169,7 +171,7 @@ foreach ($buoys as $stationNumber => $stationName) {
 	    if (file_exists($cache_file)) {
 	        echo file_get_contents($cache_file);
 	    } else {
-	    	# Handle cahce file not existing
+	    	# Handle cache file not existing
 	        echo "<dt>Status:</dt><dd>Buoy data currently unavailable. Stale cache file does not exist.</dd>\n";
 	    }
     }
